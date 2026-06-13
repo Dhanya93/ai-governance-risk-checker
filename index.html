@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Governance Risk Checker — Free Assessment by Dhanya Mary Sam</title>
+<meta name="description" content="Free interactive AI governance risk assessment covering IAM, data governance, model risk, vendor risk, incident response, and regulatory compliance. Mapped to NIST AI RMF, OWASP LLM Top 10, ISO 27001, OSFI B-13, and EU AI Act.">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+
+:root {
+  --navy:#0D1B2A;
+  --navy2:#1A2F4A;
+  --red:#C0392B;
+  --red2:#E74C3C;
+  --cream:#F5F1EB;
+  --cream2:#EDE8DF;
+  --gold:#C9963A;
+  --green:#1A6B4A;
+  --orange:#C75B00;
+  --purple:#5B2D8E;
+  --teal:#0F6B5C;
+  --text:#1A1A1A;
+  --muted:#6B6B6B;
+  --border:rgba(13,27,42,0.1);
+  --white:#FFFFFF;
+}
+
+html{font-size:16px;scroll-behavior:smooth;}
+body{font-family:'Inter',sans-serif;background:var(--cream);color:var(--text);min-height:100vh;line-height:1.6;}
+
+/* ─── HEADER ─── */
+.hdr{background:var(--navy);border-bottom:3px solid var(--red);position:sticky;top:0;z-index:200;}
+.hdr-inner{max-width:960px;margin:0 auto;padding:12px 24px;display:flex;align-items:center;justify-content:space-between;}
+.hdr-brand{font-family:'IBM Plex Mono',monospace;font-size:13px;color:rgba(255,255,255,0.5);}
+.hdr-brand span{color:var(--red2);font-weight:600;}
+.hdr-right{font-size:11px;color:rgba(255,255,255,0.3);letter-spacing:1.5px;text-transform:uppercase;}
+
+/* ─── HERO ─── */
+.hero{background:var(--navy);padding:72px 24px 64px;text-align:center;}
+.hero-eye{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:4px;text-transform:uppercase;color:var(--red2);margin-bottom:20px;}
+.hero-h1{font-size:clamp(30px,5.5vw,54px);font-weight:900;color:#fff;line-height:1.05;letter-spacing:-2px;margin-bottom:18px;}
+.hero-h1 em{font-style:normal;color:var(--red2);}
+.hero-sub{font-size:17px;color:rgba(255,255,255,0.5);max-width:560px;margin:0 auto 40px;font-weight:300;line-height:1.65;}
+.hero-pills{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-bottom:48px;}
+.hero-pill{font-family:'IBM Plex Mono',monospace;font-size:10px;padding:4px 12px;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.5);letter-spacing:1px;}
+.hero-stats{display:flex;justify-content:center;gap:40px;flex-wrap:wrap;}
+.hero-stat strong{display:block;font-size:28px;font-weight:800;color:#fff;letter-spacing:-1px;}
+.hero-stat span{font-size:11px;color:rgba(255,255,255,0.4);letter-spacing:1px;text-transform:uppercase;}
+
+/* ─── MAIN ─── */
+.main{max-width:960px;margin:0 auto;padding:56px 24px 100px;}
+
+/* ─── SCREEN: MODULE SELECT ─── */
+#screenModules{}
+.section-label{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin-bottom:20px;}
+.modules-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-bottom:40px;}
+.module-card{background:var(--white);border:1.5px solid var(--border);padding:24px;cursor:pointer;transition:all .2s;position:relative;user-select:none;}
+.module-card:hover{border-color:var(--navy);transform:translateY(-2px);box-shadow:0 4px 16px rgba(13,27,42,0.08);}
+.module-card.selected{border-color:var(--navy);background:var(--navy);}
+.module-card.selected .mc-num,.module-card.selected .mc-title,.module-card.selected .mc-desc{color:#fff;}
+.module-card.selected .mc-tag{background:var(--red);color:#fff;border-color:var(--red);}
+.mc-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;}
+.mc-num{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:1px;}
+.mc-check{width:18px;height:18px;border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:10px;color:transparent;transition:all .2s;}
+.module-card.selected .mc-check{background:var(--red);border-color:var(--red);color:#fff;}
+.mc-title{font-size:16px;font-weight:700;color:var(--navy);margin-bottom:8px;line-height:1.3;}
+.mc-desc{font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:14px;}
+.mc-tag{font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;padding:3px 10px;border:1px solid var(--border);color:var(--muted);display:inline-block;}
+
+.select-all-row{display:flex;gap:12px;margin-bottom:32px;align-items:center;}
+.select-all-row span{font-size:13px;color:var(--muted);}
+.btn-text{background:none;border:none;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;color:var(--navy);cursor:pointer;text-decoration:underline;padding:0;}
+
+.start-row{display:flex;align-items:center;gap:20px;flex-wrap:wrap;}
+.selected-count{font-size:13px;color:var(--muted);}
+
+/* ─── BUTTONS ─── */
+.btn{font-family:'Inter',sans-serif;font-size:13px;font-weight:700;padding:12px 28px;border:none;cursor:pointer;letter-spacing:0.3px;transition:all .15s;}
+.btn-primary{background:var(--navy);color:#fff;}
+.btn-primary:hover{background:var(--navy2);}
+.btn-primary:disabled{background:var(--cream2);color:var(--muted);cursor:not-allowed;}
+.btn-secondary{background:transparent;color:var(--muted);border:1.5px solid var(--border);}
+.btn-secondary:hover{color:var(--navy);border-color:var(--navy);}
+.btn-lg{font-size:15px;padding:16px 40px;}
+
+/* ─── SCREEN: ASSESSMENT ─── */
+#screenAssessment{display:none;}
+.assess-header{display:flex;align-items:center;gap:16px;margin-bottom:32px;flex-wrap:wrap;}
+.module-badge{font-family:'IBM Plex Mono',monospace;font-size:11px;padding:4px 12px;background:var(--navy);color:#fff;letter-spacing:1px;}
+.assess-progress-label{font-size:12px;color:var(--muted);}
+.assess-bar{flex:1;height:3px;background:var(--border);min-width:100px;}
+.assess-bar-fill{height:100%;background:var(--red);transition:width .3s;}
+
+.q-card{background:var(--white);border:1px solid var(--border);padding:36px 40px;animation:fadeUp .3s ease;}
+.q-cat{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:8px;}
+.q-num{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--red);letter-spacing:2px;margin-bottom:12px;}
+.q-text{font-size:20px;font-weight:700;color:var(--navy);line-height:1.35;letter-spacing:-0.3px;margin-bottom:8px;}
+.q-ctx{font-size:13px;color:var(--muted);margin-bottom:28px;line-height:1.55;}
+.options{display:flex;flex-direction:column;gap:10px;}
+.opt{display:flex;align-items:flex-start;gap:14px;padding:14px 18px;border:1.5px solid var(--border);cursor:pointer;transition:all .15s;background:var(--cream);}
+.opt:hover{border-color:var(--navy);background:var(--white);}
+.opt.sel{border-color:var(--navy);background:var(--navy);color:#fff;}
+.opt-key{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:500;background:var(--white);border:1px solid var(--border);padding:2px 7px;flex-shrink:0;margin-top:2px;transition:all .15s;color:var(--text);}
+.opt.sel .opt-key{background:var(--red);border-color:var(--red);color:#fff;}
+.opt-main{flex:1;}
+.opt-text{font-size:14px;font-weight:500;line-height:1.4;}
+.opt-risk{font-size:11px;opacity:.6;margin-top:2px;}
+.nav-row{display:flex;justify-content:space-between;align-items:center;margin-top:24px;}
+
+/* ─── SCREEN: RESULTS ─── */
+#screenResults{display:none;}
+.results-header{text-align:center;background:var(--navy);padding:56px 24px;margin-bottom:40px;position:relative;}
+.results-header::after{content:'';position:absolute;bottom:0;left:0;right:0;height:4px;background:linear-gradient(to right,var(--red),var(--gold),var(--red));}
+.results-eye{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:16px;}
+.maturity-score{font-size:80px;font-weight:900;letter-spacing:-4px;color:#fff;line-height:1;margin-bottom:8px;}
+.maturity-label{font-size:22px;font-weight:700;margin-bottom:12px;}
+.maturity-desc{font-size:14px;color:rgba(255,255,255,0.5);max-width:520px;margin:0 auto;line-height:1.65;}
+.ml-foundational{color:#E74C3C;}
+.ml-developing{color:#E67E22;}
+.ml-managed{color:#F1C40F;}
+.ml-advanced{color:#2ECC71;}
+
+.modules-results{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;margin-bottom:48px;}
+.mod-result{background:var(--white);border:1px solid var(--border);padding:24px;}
+.mr-title{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:4px;}
+.mr-score-row{display:flex;align-items:center;gap:12px;margin-bottom:8px;}
+.mr-score{font-size:28px;font-weight:800;letter-spacing:-1px;}
+.mr-bar{flex:1;height:4px;background:var(--border);}
+.mr-bar-fill{height:100%;transition:width .6s;}
+.mr-level{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:2px 8px;}
+
+.sev-c{color:#E74C3C;} .sev-h{color:#E67E22;} .sev-m{color:#D4AC0D;} .sev-l{color:#1A6B4A;}
+.bar-c{background:#E74C3C;} .bar-h{background:#E67E22;} .bar-m{background:#D4AC0D;} .bar-l{background:#1A6B4A;}
+.lv-c{background:#FADBD8;color:#922B21;} .lv-h{background:#FAD7A0;color:#784212;} .lv-m{background:#FEF9C3;color:#7D6608;} .lv-l{background:#D5F5E3;color:#1A6B4A;}
+
+.findings-title{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin-bottom:20px;}
+.finding{background:var(--white);border:1px solid var(--border);padding:20px 24px;margin-bottom:10px;display:flex;align-items:flex-start;gap:16px;}
+.f-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:6px;}
+.f-body{flex:1;}
+.f-title{font-size:14px;font-weight:600;color:var(--navy);margin-bottom:4px;}
+.f-desc{font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:6px;}
+.f-fw{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--red);letter-spacing:.3px;}
+.f-module{font-size:10px;color:var(--muted);margin-top:4px;font-style:italic;}
+.f-badge{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:3px 10px;flex-shrink:0;}
+.fb-c{background:#FADBD8;color:#922B21;} .fb-h{background:#FAD7A0;color:#784212;} .fb-m{background:#FEF9C3;color:#7D6608;} .fb-l{background:#D5F5E3;color:#1A6B4A;}
+
+.cta-box{background:var(--white);border:1px solid var(--border);padding:40px;text-align:center;margin-top:40px;}
+.cta-box h3{font-size:20px;font-weight:700;color:var(--navy);margin-bottom:10px;}
+.cta-box p{font-size:14px;color:var(--muted);margin-bottom:24px;max-width:480px;margin-left:auto;margin-right:auto;line-height:1.65;}
+.cta-links{display:flex;justify-content:center;gap:16px;flex-wrap:wrap;}
+.cta-link{font-size:13px;font-weight:700;color:var(--navy);text-decoration:none;border-bottom:2px solid var(--red);padding-bottom:2px;}
+.cta-link:hover{color:var(--red);}
+
+.attrib{text-align:center;margin-top:32px;font-size:12px;color:var(--muted);}
+.attrib a{color:var(--navy);font-weight:600;text-decoration:none;}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+@media(max-width:600px){
+  .q-card{padding:24px 20px;}
+  .hero-stats{gap:24px;}
+  .maturity-score{font-size:56px;}
+  .cta-box{padding:28px 20px;}
+}
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <div class="hdr-inner">
+    <div class="hdr-brand"><span>AI Governance</span> Risk Checker</div>
+    <div class="hdr-right">Free · No login required</div>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="hero-eye">Free Interactive Assessment</div>
+  <h1 class="hero-h1">How mature is your<br><em>AI governance</em>?</h1>
+  <p class="hero-sub">Choose your risk domains. Answer honestly. Get a maturity score with prioritised findings mapped to the frameworks that matter.</p>
+  <div class="hero-pills">
+    <div class="hero-pill">NIST AI RMF</div>
+    <div class="hero-pill">OWASP LLM Top 10</div>
+    <div class="hero-pill">ISO 27001:2022</div>
+    <div class="hero-pill">EU AI Act</div>
+    <div class="hero-pill">OSFI B-13</div>
+    <div class="hero-pill">PIPEDA</div>
+  </div>
+  <div class="hero-stats">
+    <div class="hero-stat"><strong>6</strong><span>Risk domains</span></div>
+    <div class="hero-stat"><strong>60</strong><span>Questions total</span></div>
+    <div class="hero-stat"><strong>~10 min</strong><span>Full assessment</span></div>
+    <div class="hero-stat"><strong>Free</strong><span>No signup</span></div>
+  </div>
+</div>
+
+<div class="main">
+
+<!-- ─── SCREEN 1: MODULE SELECT ─── -->
+<div id="screenModules">
+  <div class="section-label">Select the domains you want to assess</div>
+
+  <div class="modules-grid" id="modulesGrid"></div>
+
+  <div class="select-all-row">
+    <button class="btn-text" onclick="selectAll()">Select all 6</button>
+    <span>·</span>
+    <button class="btn-text" onclick="clearAll()">Clear selection</button>
+    <span style="margin-left:8px;" id="selCount" class="selected-count"></span>
+  </div>
+
+  <div class="start-row">
+    <button class="btn btn-primary btn-lg" id="btnStart" onclick="startAssessment()" disabled>Start assessment</button>
+    <span class="selected-count" id="startHint">Select at least one domain to begin</span>
+  </div>
+</div>
+
+<!-- ─── SCREEN 2: ASSESSMENT ─── -->
+<div id="screenAssessment">
+  <div class="assess-header">
+    <div class="module-badge" id="assessModuleBadge"></div>
+    <div class="assess-bar"><div class="assess-bar-fill" id="assessBarFill" style="width:0%"></div></div>
+    <div class="assess-progress-label" id="assessProgressLabel"></div>
+  </div>
+  <div id="qCardWrap"></div>
+  <div class="nav-row" id="assessNav">
+    <button class="btn btn-secondary" id="btnBack" onclick="goBack()">Back</button>
+    <button class="btn btn-primary" id="btnNext" onclick="goNext()" disabled>Next</button>
+  </div>
+</div>
+
+<!-- ─── SCREEN 3: RESULTS ─── -->
+<div id="screenResults">
+  <div class="results-header">
+    <div class="results-eye">Your AI Governance Maturity Score</div>
+    <div class="maturity-score" id="maturityScore"></div>
+    <div class="maturity-label" id="maturityLabel"></div>
+    <div class="maturity-desc" id="maturityDesc"></div>
+  </div>
+
+  <div class="section-label">Score by domain</div>
+  <div class="modules-results" id="moduleResults"></div>
+
+  <div class="findings-title">Prioritised findings — act on these first</div>
+  <div id="allFindings"></div>
+
+  <div class="cta-box">
+    <h3>Want the full methodology?</h3>
+    <p>This tool is based on a 25-risk AI IAM assessment and a broader AI governance framework developed by Dhanya Mary Sam — publicly available on GitHub with full control mappings across NIST AI RMF, OWASP LLM Top 10, ISO 27001, and OSFI B-13.</p>
+    <div class="cta-links">
+      <a class="cta-link" href="https://github.com/Dhanya93" target="_blank">Full Portfolio on GitHub</a>
+      <a class="cta-link" href="https://www.linkedin.com/in/dhanya-m-sam" target="_blank">Connect on LinkedIn</a>
+    </div>
+  </div>
+
+  <div style="text-align:center;margin-top:28px;">
+    <button class="btn btn-secondary" onclick="restart()">Start over</button>
+  </div>
+
+  <div class="attrib">Built by <a href="https://www.linkedin.com/in/dhanya-m-sam" target="_blank">Dhanya Mary Sam</a> — AI Analyst & GRC Practitioner · Brampton, Ontario, Canada</div>
+</div>
+
+</div><!-- /main -->
+
+<script>
+const MODULES = [
+  {
+    id:'iam', title:'AI IAM & Access Control', color:'#0D1B2A',
+    desc:'Assess risks in AI-driven identity and access management — autonomous decisions, prompt injection, privilege escalation.',
+    tag:'NIST AI RMF · ISO 27001',
+    questions:[
+      {cat:'Explainability',text:'Can your AI IAM system explain why it granted or denied a specific access request?',ctx:'Regulators require explainability for automated access decisions, especially under OSFI B-13.',
+        opts:[{t:'Yes — every decision is logged with reasoning and confidence score',r:0,l:'Low risk'},{t:'Decisions are logged but reasoning is not captured',r:2,l:'Medium risk'},{t:'No — decisions are made but reasoning is unknown',r:4,l:'High risk'},{t:'We have not assessed this',r:5,l:'Critical risk'}],
+        finding:{title:'No explainability or audit trail for AI access decisions',desc:'AI agents making autonomous access decisions without explainable reasoning create direct compliance exposure. Auditors cannot verify decisions.',fw:'NIST AI RMF: GOVERN 1.7 | ISO 27001: A.8.15 | OSFI B-13: S.3'}},
+      {cat:'Prompt Injection',text:'Does your AI IAM system accept natural language inputs from users or external systems?',ctx:'Natural language interfaces introduce prompt injection risk — attackers can craft malicious inputs to manipulate AI access decisions.',
+        opts:[{t:'No — all inputs are structured and validated programmatically',r:0,l:'Low risk'},{t:'Yes, with injection detection controls in place',r:1,l:'Low-medium risk'},{t:'Yes, but not tested for prompt injection',r:4,l:'High risk'},{t:'Yes, with no controls or awareness of this risk',r:5,l:'Critical risk'}],
+        finding:{title:'Prompt injection vulnerability in AI IAM interface',desc:'Natural language IAM interfaces without controls can be manipulated to bypass authentication or escalate privileges.',fw:'OWASP LLM Top 10: LLM01 | NIST AI RMF: MAP 5.1 | ISO 27001: A.8.7'}},
+      {cat:'Training Data',text:'What data was your AI IAM model trained on?',ctx:'Models trained on historical access patterns can inherit and amplify existing access control weaknesses including privilege creep.',
+        opts:[{t:'Audited, cleaned data with least-privilege baselines',r:0,l:'Low risk'},{t:'Historical data with some cleansing applied',r:2,l:'Medium risk'},{t:'Raw historical data — not audited for privilege creep',r:4,l:'High risk'},{t:'Unknown or not documented',r:5,l:'Critical risk'}],
+        finding:{title:'Training data may normalise privilege creep at scale',desc:'Models trained on unaudited access data learn that over-provisioning is normal, then replicate it across thousands of users.',fw:'NIST AI RMF: MAP 2.3 | NIST 800-53: AC-6 | OSFI B-13: S.3'}},
+      {cat:'Human Oversight',text:'For privileged access grants, does a human review the AI recommendation before it is applied?',ctx:'Fully autonomous decisions for high-risk systems create accountability gaps and increase the blast radius of AI errors.',
+        opts:[{t:'Yes — mandatory human review for all privileged access',r:0,l:'Low risk'},{t:'Yes for some roles — standard roles applied automatically',r:2,l:'Medium risk'},{t:'No — AI decisions applied automatically across all access types',r:4,l:'High risk'},{t:'Unsure what level of automation is applied',r:5,l:'Critical risk'}],
+        finding:{title:'Insufficient human oversight for high-risk AI access decisions',desc:'Fully autonomous AI access grants for privileged systems eliminate human accountability and amplify errors at machine speed.',fw:'NIST AI RMF: GOVERN 5.1 | ISO 27001: A.8.2 | NIST 800-53: AC-5'}},
+      {cat:'Resilience',text:'If your AI IAM system becomes unavailable, what happens to access management?',ctx:'Single points of failure in AI IAM systems can cause enterprise-wide access outages simultaneously.',
+        opts:[{t:'Automatic failover to rule-based IAM — tested and documented',r:0,l:'Low risk'},{t:'Manual fallback exists but not recently tested',r:2,l:'Medium risk'},{t:'No defined fallback — access would be disrupted',r:4,l:'High risk'},{t:'This scenario has not been considered',r:5,l:'Critical risk'}],
+        finding:{title:'No fallback when AI IAM system is unavailable',desc:'Without a tested fallback, a system outage or model compromise could simultaneously lock out all users with no recovery path.',fw:'ISO 27001: A.8.14 | NIST 800-53: CP-10 | OSFI B-13: S.4'}},
+      {cat:'Monitoring',text:'Are AI IAM access decisions integrated into your SIEM?',ctx:'AI decisions not visible to security operations create blind spots — anomalous behaviour goes undetected.',
+        opts:[{t:'Yes — all AI decisions ingested into SIEM with defined alerts',r:0,l:'Low risk'},{t:'Partially — some logs ingested but AI-specific alerts not defined',r:2,l:'Medium risk'},{t:'No — AI IAM logs not integrated into SIEM',r:4,l:'High risk'},{t:'No SIEM or equivalent monitoring capability',r:5,l:'Critical risk'}],
+        finding:{title:'AI IAM decisions not visible to security operations',desc:'Without SIEM integration, anomalous AI behaviour is invisible to your security team until an incident has already occurred.',fw:'ISO 27001: A.8.15, A.8.16 | NIST 800-53: SI-4 | NIST AI RMF: MEASURE 2.6'}},
+      {cat:'Vendor Risk',text:'Has your AI IAM vendor provided a current security audit — SOC 2 Type II or equivalent?',ctx:'Third-party AI vendors can introduce vulnerabilities through model updates or supply chain compromises.',
+        opts:[{t:'Yes — current SOC 2 Type II reviewed annually',r:0,l:'Low risk'},{t:'Yes — but the audit is more than 12 months old',r:2,l:'Medium risk'},{t:'No — vendor has not provided a security audit',r:4,l:'High risk'},{t:'Vendor security has not been reviewed',r:5,l:'Critical risk'}],
+        finding:{title:'Unaudited AI IAM vendor — supply chain risk unmanaged',desc:'AI IAM vendors without security audits can introduce vulnerabilities through model updates or insecure APIs without your knowledge.',fw:'NIST AI RMF: GOVERN 6.1 | ISO 27001: A.5.19 | OSFI B-13: S.5'}},
+      {cat:'Governance',text:'Does your organisation have a formal AI governance policy covering IAM AI systems?',ctx:'General security policies pre-dating AI adoption typically do not address AI-specific risks or oversight requirements.',
+        opts:[{t:'Yes — formal AI governance policy with defined ownership',r:0,l:'Low risk'},{t:'AI policy exists but does not cover IAM AI specifically',r:2,l:'Medium risk'},{t:'No formal AI governance policy exists',r:4,l:'High risk'},{t:'AI governance has not been formally addressed',r:5,l:'Critical risk'}],
+        finding:{title:'No AI governance policy for IAM AI systems',desc:'Operating AI IAM without a governance policy means undefined accountability and no compliance baseline.',fw:'NIST AI RMF: GOVERN 1.1 | ISO 27001: A.5.1 | OSFI B-13: S.1'}},
+      {cat:'Bias & Fairness',text:'Do you monitor your AI IAM system for demographically correlated access denial patterns?',ctx:'AI models can inadvertently discriminate based on features correlated with protected characteristics.',
+        opts:[{t:'Yes — fairness metrics and bias monitoring in place',r:0,l:'Low risk'},{t:'Planned but not yet implemented',r:2,l:'Medium risk'},{t:'No bias monitoring in place',r:4,l:'High risk'},{t:'Not aware this is a risk',r:5,l:'Critical risk'}],
+        finding:{title:'No bias monitoring for AI access recommendations',desc:'AI access systems without fairness monitoring may develop and scale discriminatory patterns without detection.',fw:'NIST AI RMF: MAP 5.2, MEASURE 2.5 | OSFI B-13: S.2'}},
+      {cat:'Incident Response',text:'Do you have an AI-specific incident response playbook for IAM failures?',ctx:'Traditional IR playbooks do not cover AI failure modes like mass access denial or model poisoning.',
+        opts:[{t:'Yes — AI-specific IR playbook with rollback procedures',r:0,l:'Low risk'},{t:'General IR playbook not updated for AI',r:2,l:'Medium risk'},{t:'No AI-specific IR playbook',r:4,l:'High risk'},{t:'No IR process for IAM failures',r:5,l:'Critical risk'}],
+        finding:{title:'No AI-specific incident response procedure',desc:'When an AI IAM agent malfunctions, teams without a defined playbook face uncontrolled downtime and potential data exposure.',fw:'NIST AI RMF: RESPOND 1.1 | ISO 27001: A.5.26 | NIST 800-53: IR-4'}}
+    ]
+  },
+  {
+    id:'data', title:'AI Data Governance & Privacy', color:'#1A6B4A',
+    desc:'Evaluate how your organisation governs the data used to train, run, and monitor AI systems — including privacy obligations.',
+    tag:'PIPEDA · ISO 27001 · EU AI Act',
+    questions:[
+      {cat:'Data Inventory',text:'Do you maintain a complete inventory of data used to train your AI systems?',ctx:'Without a data inventory, organisations cannot assess bias, manage privacy obligations, or respond to regulatory inquiries.',
+        opts:[{t:'Yes — complete, current inventory with data lineage documented',r:0,l:'Low risk'},{t:'Partial inventory — some AI training data documented',r:2,l:'Medium risk'},{t:'No formal inventory of AI training data',r:4,l:'High risk'},{t:'Training data origins are unknown',r:5,l:'Critical risk'}],
+        finding:{title:'No inventory of AI training data',desc:'Without documented data lineage, organisations cannot manage bias, respond to privacy requests, or demonstrate regulatory compliance.',fw:'NIST AI RMF: MAP 2.3 | ISO 27001: A.8.10 | EU AI Act: Art. 10'}},
+      {cat:'Privacy Assessment',text:'Has a Privacy Impact Assessment been conducted for AI systems that process personal data?',ctx:'AI systems processing personal data trigger privacy obligations under PIPEDA, provincial laws, and the EU AI Act.',
+        opts:[{t:'Yes — DPIA completed before deployment and reviewed annually',r:0,l:'Low risk'},{t:'Partially conducted — not fully documented',r:2,l:'Medium risk'},{t:'No DPIA despite processing personal data',r:4,l:'High risk'},{t:'Unsure if a DPIA is required',r:5,l:'Critical risk'}],
+        finding:{title:'No Privacy Impact Assessment for AI systems',desc:'AI systems processing personal data without a DPIA create regulatory exposure under PIPEDA and provincial privacy laws.',fw:'PIPEDA | ISO 27001: A.5.34 | NIST AI RMF: MAP 1.6 | EU AI Act: Art. 9'}},
+      {cat:'Data Quality',text:'What controls exist to ensure the quality and accuracy of data used to train your AI systems?',ctx:'Poor training data quality directly degrades AI decision quality and can amplify existing biases.',
+        opts:[{t:'Formal data quality controls with validation before each model update',r:0,l:'Low risk'},{t:'Some quality checks — not systematic',r:2,l:'Medium risk'},{t:'No formal data quality controls for AI training data',r:4,l:'High risk'},{t:'Data quality has not been assessed',r:5,l:'Critical risk'}],
+        finding:{title:'No data quality controls for AI training data',desc:'Unvalidated training data produces unreliable AI outputs. In regulated environments this can constitute a material control failure.',fw:'NIST AI RMF: MAP 2.3 | ISO 27001: A.8.10 | OSFI B-13: S.3'}},
+      {cat:'Data Minimisation',text:'Do your AI systems collect and retain only the minimum personal data necessary for their purpose?',ctx:'Data minimisation is a legal requirement under PIPEDA and EU AI Act, and reduces breach impact.',
+        opts:[{t:'Yes — data minimisation principle enforced and audited',r:0,l:'Low risk'},{t:'Partially applied — some systems collect excess data',r:2,l:'Medium risk'},{t:'No data minimisation controls in place',r:4,l:'High risk'},{t:'Not aware of data minimisation obligations',r:5,l:'Critical risk'}],
+        finding:{title:'AI systems collecting excess personal data',desc:'Over-collection of personal data for AI systems increases breach exposure and regulatory risk under PIPEDA and EU AI Act.',fw:'PIPEDA | EU AI Act: Art. 10 | ISO 27001: A.5.34'}},
+      {cat:'Consent & Transparency',text:'Are individuals informed that AI systems are being used to make decisions about them?',ctx:'Transparency requirements under PIPEDA and EU AI Act require disclosure of automated decision-making.',
+        opts:[{t:'Yes — clear disclosure in privacy policy and at point of collection',r:0,l:'Low risk'},{t:'Partial disclosure — not consistently communicated',r:2,l:'Medium risk'},{t:'No disclosure of AI decision-making to affected individuals',r:4,l:'High risk'},{t:'Not aware of transparency obligations',r:5,l:'Critical risk'}],
+        finding:{title:'Insufficient transparency about AI decision-making',desc:'Individuals have a right to know when AI systems make decisions about them. Failure to disclose creates regulatory exposure.',fw:'PIPEDA | EU AI Act: Art. 13 | NIST AI RMF: GOVERN 1.7'}},
+      {cat:'Data Retention',text:'Are defined data retention and deletion policies applied to AI training and operational data?',ctx:'AI systems often accumulate data indefinitely without retention controls, creating privacy and storage risks.',
+        opts:[{t:'Yes — retention schedules defined and automated deletion enforced',r:0,l:'Low risk'},{t:'Retention policies exist but not consistently enforced for AI data',r:2,l:'Medium risk'},{t:'No retention policies for AI data',r:4,l:'High risk'},{t:'Data is retained indefinitely',r:5,l:'Critical risk'}],
+        finding:{title:'No data retention controls for AI systems',desc:'Indefinite retention of AI training and operational data violates PIPEDA obligations and increases breach exposure.',fw:'PIPEDA | ISO 27001: A.8.10 | EU AI Act: Art. 10'}},
+      {cat:'Cross-Border Transfer',text:'Is personal data used in your AI systems transferred outside Canada?',ctx:'Cross-border data transfers for AI training or processing may require additional safeguards under PIPEDA.',
+        opts:[{t:'No cross-border transfers — all data processed in Canada',r:0,l:'Low risk'},{t:'Yes — with contractual safeguards and PIPEDA compliance documented',r:1,l:'Low-medium risk'},{t:'Yes — but without formal safeguards assessed',r:4,l:'High risk'},{t:'Unknown whether cross-border transfers occur',r:5,l:'Critical risk'}],
+        finding:{title:'Unmanaged cross-border data transfers for AI systems',desc:'AI systems transferring personal data outside Canada without safeguards create exposure under PIPEDA.',fw:'PIPEDA | ISO 27001: A.5.33 | EU AI Act: Art. 46'}},
+      {cat:'Access to Training Data',text:'Is access to AI training data restricted to authorised personnel only?',ctx:'Unrestricted access to AI training data containing personal information creates both privacy and security risks.',
+        opts:[{t:'Yes — access controls applied and reviewed regularly',r:0,l:'Low risk'},{t:'Partial controls — some data sets unrestricted',r:2,l:'Medium risk'},{t:'No access controls on AI training data',r:4,l:'High risk'},{t:'Access to training data is not tracked',r:5,l:'Critical risk'}],
+        finding:{title:'Insufficient access controls on AI training data',desc:'Unrestricted access to training data containing PII creates insider threat exposure and violates PIPEDA data protection obligations.',fw:'ISO 27001: A.8.3 | PIPEDA | NIST 800-53: AC-3'}},
+      {cat:'Third-Party Data',text:'When third-party data is used to train AI systems, is vendor data processing audited?',ctx:'Third-party data used in AI training can introduce privacy risks, biases, and supply chain vulnerabilities.',
+        opts:[{t:'Yes — all third-party data sources are contractually governed and audited',r:0,l:'Low risk'},{t:'Some third-party data used with limited oversight',r:2,l:'Medium risk'},{t:'Third-party data used with no formal oversight',r:4,l:'High risk'},{t:'Unknown what third-party data is used in AI training',r:5,l:'Critical risk'}],
+        finding:{title:'Unaudited third-party data in AI training pipeline',desc:'Third-party training data without governance introduces unknown bias, privacy risks, and supply chain exposure.',fw:'NIST AI RMF: GOVERN 6.1 | ISO 27001: A.5.19 | EU AI Act: Art. 10'}},
+      {cat:'Breach Response',text:'Does your breach response plan cover AI-specific data incidents?',ctx:'AI data incidents — training data poisoning, model inversion attacks, output data leakage — require specialised response procedures.',
+        opts:[{t:'Yes — AI data incidents explicitly covered in breach response plan',r:0,l:'Low risk'},{t:'General breach response plan not updated for AI incidents',r:2,l:'Medium risk'},{t:'No breach response plan covering AI data incidents',r:4,l:'High risk'},{t:'No documented breach response plan',r:5,l:'Critical risk'}],
+        finding:{title:'Breach response plan does not cover AI-specific incidents',desc:'AI data incidents have unique characteristics — training data poisoning, model extraction, output leakage — requiring specialised response procedures.',fw:'PIPEDA (72-hour breach notification) | ISO 27001: A.5.26 | NIST AI RMF: RESPOND 1.1'}}
+    ]
+  },
+  {
+    id:'model', title:'AI Model Risk & Lifecycle', color:'#5B2D8E',
+    desc:'Assess how your organisation manages AI model performance, drift, validation, and the full model lifecycle from development to retirement.',
+    tag:'NIST AI RMF · OSFI B-13',
+    questions:[
+      {cat:'Model Validation',text:'Are AI models validated against defined performance criteria before deployment to production?',ctx:'Deploying unvalidated AI models creates unpredictable outcomes that can cascade across business processes.',
+        opts:[{t:'Yes — formal validation process with documented pass/fail criteria',r:0,l:'Low risk'},{t:'Informal validation — no documented criteria',r:2,l:'Medium risk'},{t:'No formal model validation before production deployment',r:4,l:'High risk'},{t:'Models deployed without validation',r:5,l:'Critical risk'}],
+        finding:{title:'No formal model validation before production deployment',desc:'Unvalidated AI models introduce unpredictable failure modes. In regulated environments this is a material governance gap.',fw:'NIST AI RMF: MEASURE 2.2 | OSFI B-13: S.3 | ISO 27001: A.8.29'}},
+      {cat:'Model Drift',text:'Do you monitor deployed AI models for performance degradation or drift over time?',ctx:'AI models trained on historical data become less accurate as conditions change — without monitoring, degradation goes undetected.',
+        opts:[{t:'Yes — continuous monitoring with defined thresholds triggering retraining',r:0,l:'Low risk'},{t:'Periodic manual reviews — not automated',r:2,l:'Medium risk'},{t:'No formal drift monitoring in place',r:4,l:'High risk'},{t:'Not aware model drift is a risk',r:5,l:'Critical risk'}],
+        finding:{title:'No AI model drift monitoring',desc:'Without drift monitoring, AI models silently degrade over time, producing increasingly inaccurate outputs that compound errors at scale.',fw:'NIST AI RMF: MEASURE 2.7 | OSFI B-13: S.3 | ISO 27001: A.8.16'}},
+      {cat:'Adversarial Testing',text:'Are AI models tested against adversarial inputs before and after production deployment?',ctx:'Adversarial testing identifies vulnerabilities that normal testing misses — including prompt injection, data poisoning, and evasion attacks.',
+        opts:[{t:'Yes — formal adversarial testing programme including red teaming',r:0,l:'Low risk'},{t:'Some testing conducted — not systematic',r:2,l:'Medium risk'},{t:'No adversarial testing of AI models',r:4,l:'High risk'},{t:'Not aware adversarial testing is relevant',r:5,l:'Critical risk'}],
+        finding:{title:'No adversarial testing programme for AI models',desc:'AI models not tested against adversarial inputs have unknown vulnerability profiles. This is a prerequisite for responsible AI deployment.',fw:'OWASP LLM Top 10 | NIST AI RMF: MEASURE 2.2 | ISO 27001: A.8.29'}},
+      {cat:'Model Inventory',text:'Do you maintain a current inventory of all AI models in production?',ctx:'Without a model inventory, organisations cannot manage risk, apply patches, or respond to regulatory inquiries.',
+        opts:[{t:'Yes — complete inventory with model metadata, owners, and risk ratings',r:0,l:'Low risk'},{t:'Partial inventory — some models not documented',r:2,l:'Medium risk'},{t:'No formal model inventory',r:4,l:'High risk'},{t:'Unknown what AI models are in production',r:5,l:'Critical risk'}],
+        finding:{title:'No AI model inventory',desc:'Without a model inventory, organisations cannot systematically manage model risk, apply security updates, or respond to incidents.',fw:'NIST AI RMF: GOVERN 1.4 | OSFI B-13: S.1 | EU AI Act: Art. 51'}},
+      {cat:'Model Security',text:'Are AI model weights and artefacts stored securely with appropriate access controls?',ctx:'Unprotected model artefacts can be stolen, copied, or modified — enabling model theft, replication, or poisoning.',
+        opts:[{t:'Yes — encrypted storage with access controls and audit logging',r:0,l:'Low risk'},{t:'Some controls — not consistently applied',r:2,l:'Medium risk'},{t:'No specific controls on model artefact storage',r:4,l:'High risk'},{t:'Model storage security has not been considered',r:5,l:'Critical risk'}],
+        finding:{title:'Insufficient security controls on AI model artefacts',desc:'Unprotected model weights can be stolen or modified, enabling model theft and supply chain attacks.',fw:'ISO 27001: A.8.24 | NIST 800-53: SC-28 | NIST AI RMF: MANAGE 2.4'}},
+      {cat:'Model Retirement',text:'Is there a defined process for retiring or replacing AI models when they become obsolete or unsafe?',ctx:'AI models without retirement procedures can persist in production beyond their safe operational life.',
+        opts:[{t:'Yes — formal model retirement process with defined criteria',r:0,l:'Low risk'},{t:'Ad hoc retirement — no defined criteria',r:2,l:'Medium risk'},{t:'No model retirement process',r:4,l:'High risk'},{t:'Models continue running indefinitely',r:5,l:'Critical risk'}],
+        finding:{title:'No defined AI model retirement process',desc:'Models without retirement criteria can continue operating beyond their safe and accurate operational life, producing unreliable outputs.',fw:'NIST AI RMF: MANAGE 4.1 | OSFI B-13: S.3'}},
+      {cat:'Explainability',text:'Can your AI models explain their outputs to affected individuals and regulators on request?',ctx:'Explainability requirements are increasing across regulations — the ability to explain AI decisions is becoming a compliance baseline.',
+        opts:[{t:'Yes — explainability techniques implemented and documented',r:0,l:'Low risk'},{t:'Partial — some models explainable, others not',r:2,l:'Medium risk'},{t:'No explainability capabilities implemented',r:4,l:'High risk'},{t:'Not aware explainability is required',r:5,l:'Critical risk'}],
+        finding:{title:'AI models cannot explain their outputs',desc:'Inability to explain AI decisions creates compliance exposure under OSFI B-13, PIPEDA, and EU AI Act, and undermines stakeholder trust.',fw:'NIST AI RMF: GOVERN 1.7 | EU AI Act: Art. 13 | OSFI B-13: S.2'}},
+      {cat:'Human Oversight',text:'Are there defined thresholds at which AI model outputs require mandatory human review?',ctx:'Fully autonomous AI decisions without human oversight thresholds amplify errors and remove accountability.',
+        opts:[{t:'Yes — risk-tiered human review requirements defined and enforced',r:0,l:'Low risk'},{t:'Informal guidelines — not consistently enforced',r:2,l:'Medium risk'},{t:'No human review thresholds defined',r:4,l:'High risk'},{t:'All AI outputs applied without human review',r:5,l:'Critical risk'}],
+        finding:{title:'No mandatory human review thresholds for AI decisions',desc:'Without defined oversight thresholds, AI errors propagate at machine speed without human intervention.',fw:'NIST AI RMF: GOVERN 5.1 | EU AI Act: Art. 14 | ISO 27001: A.8.2'}},
+      {cat:'SoD Controls',text:'Are the teams that develop, deploy, and monitor AI models separated to prevent conflicts of interest?',ctx:'Segregation of duties for AI model management prevents single teams from introducing and concealing errors.',
+        opts:[{t:'Yes — development, deployment, and monitoring roles are separated',r:0,l:'Low risk'},{t:'Partial separation — some overlap exists',r:2,l:'Medium risk'},{t:'Same team develops, deploys, and monitors models',r:4,l:'High risk'},{t:'SoD has not been considered for AI model management',r:5,l:'Critical risk'}],
+        finding:{title:'No segregation of duties for AI model management',desc:'Single teams controlling the full AI model lifecycle can introduce and conceal errors without independent oversight.',fw:'ISO 27001: A.5.3 | NIST AI RMF: GOVERN 5.2 | NIST 800-53: AC-5'}},
+      {cat:'Performance Reporting',text:'Are AI model performance metrics reported to senior leadership or a governance committee?',ctx:'Without executive visibility, AI model risk is managed at the operational level without appropriate oversight.',
+        opts:[{t:'Yes — regular model performance reporting to governance committee',r:0,l:'Low risk'},{t:'Informal reporting — not structured or regular',r:2,l:'Medium risk'},{t:'No reporting of AI model performance to leadership',r:4,l:'High risk'},{t:'Senior leadership are not aware of AI model risks',r:5,l:'Critical risk'}],
+        finding:{title:'AI model risk not reported to senior leadership',desc:'Without executive visibility, AI model risk lacks appropriate governance oversight and escalation pathways.',fw:'NIST AI RMF: GOVERN 1.4 | OSFI B-13: S.1 | ISO 27001: Clause 9.3'}}
+    ]
+  },
+  {
+    id:'vendor', title:'AI Vendor & Third-Party Risk', color:'#C75B00',
+    desc:'Assess how your organisation evaluates, contracts with, and monitors third-party AI vendors and supply chain risks.',
+    tag:'NIST AI RMF · ISO 27001 · OSFI B-13',
+    questions:[
+      {cat:'Vendor Due Diligence',text:'Is a formal security assessment conducted before deploying a third-party AI system?',ctx:'Third-party AI systems introduce supply chain risks that bypass internal security controls if not assessed.',
+        opts:[{t:'Yes — formal AI security assessment before every vendor deployment',r:0,l:'Low risk'},{t:'Informal assessment — not standardised',r:2,l:'Medium risk'},{t:'No assessment before deploying third-party AI',r:4,l:'High risk'},{t:'Third-party AI deployed without security review',r:5,l:'Critical risk'}],
+        finding:{title:'No security assessment before third-party AI deployment',desc:'Third-party AI systems without pre-deployment assessment introduce unknown vulnerabilities into your environment.',fw:'NIST AI RMF: GOVERN 6.1 | ISO 27001: A.5.19 | OSFI B-13: S.5'}},
+      {cat:'Contractual Controls',text:'Do vendor contracts include AI-specific security and governance requirements?',ctx:'Standard vendor contracts typically do not address AI model updates, training data practices, or AI-specific incident response.',
+        opts:[{t:'Yes — AI-specific security clauses in all relevant vendor contracts',r:0,l:'Low risk'},{t:'General security clauses — no AI-specific provisions',r:2,l:'Medium risk'},{t:'No security requirements in vendor contracts',r:4,l:'High risk'},{t:'Vendor contracts have not been reviewed for AI risks',r:5,l:'Critical risk'}],
+        finding:{title:'Vendor contracts lack AI-specific security requirements',desc:'Without contractual AI governance obligations, vendors can change model behaviour or data practices without notification or accountability.',fw:'NIST AI RMF: GOVERN 6.2 | ISO 27001: A.5.20 | OSFI B-13: S.5'}},
+      {cat:'Model Update Notification',text:'Are you notified when your AI vendor makes significant changes to underlying models?',ctx:'Silent model updates from vendors can change AI behaviour in ways that invalidate your security controls.',
+        opts:[{t:'Yes — contractual requirement for advance notification of model changes',r:0,l:'Low risk'},{t:'Informal notification — not contractually required',r:2,l:'Medium risk'},{t:'No notification — model changes are discovered reactively',r:4,l:'High risk'},{t:'Not aware vendors update underlying models',r:5,l:'Critical risk'}],
+        finding:{title:'No notification when AI vendor updates underlying models',desc:'Silent model updates can alter AI behaviour in ways that break security controls or introduce new vulnerabilities without warning.',fw:'NIST AI RMF: GOVERN 6.1 | ISO 27001: A.5.19 | OWASP LLM Top 10: LLM05'}},
+      {cat:'Vendor Audit Rights',text:'Do your vendor contracts include the right to audit AI security practices?',ctx:'Without audit rights, you cannot independently verify vendor security claims for AI systems processing your data.',
+        opts:[{t:'Yes — explicit audit rights for AI security in all relevant contracts',r:0,l:'Low risk'},{t:'General audit rights — not specific to AI systems',r:2,l:'Medium risk'},{t:'No audit rights in vendor contracts',r:4,l:'High risk'},{t:'Audit rights have not been considered',r:5,l:'Critical risk'}],
+        finding:{title:'No right to audit AI vendor security practices',desc:'Without contractual audit rights, vendor security claims for AI systems cannot be independently verified.',fw:'ISO 27001: A.5.20 | OSFI B-13: S.5 | NIST AI RMF: GOVERN 6.2'}},
+      {cat:'Data Handling',text:'Do you know how your AI vendors store, process, and use your organisation\'s data?',ctx:'AI vendors may use your data to train shared models, retain data beyond necessary periods, or transfer data across borders.',
+        opts:[{t:'Yes — data handling practices fully documented and contractually governed',r:0,l:'Low risk'},{t:'Partial visibility — some practices unknown',r:2,l:'Medium risk'},{t:'Limited visibility into vendor data handling',r:4,l:'High risk'},{t:'Unknown how vendors use organisational data',r:5,l:'Critical risk'}],
+        finding:{title:'Insufficient visibility into AI vendor data handling',desc:'AI vendors with undisclosed data practices may use your data to train shared models or transfer it beyond agreed boundaries.',fw:'PIPEDA | ISO 27001: A.5.33 | NIST AI RMF: GOVERN 6.1'}},
+      {cat:'Concentration Risk',text:'Is your organisation critically dependent on a single AI vendor for core business functions?',ctx:'Over-reliance on a single AI vendor creates concentration risk — their outage, price change, or service termination becomes your crisis.',
+        opts:[{t:'No — critical functions have alternative AI providers or manual fallbacks',r:0,l:'Low risk'},{t:'Some concentration risk — partially mitigated',r:2,l:'Medium risk'},{t:'High dependence on single vendor with no fallback',r:4,l:'High risk'},{t:'Not assessed vendor concentration risk',r:5,l:'Critical risk'}],
+        finding:{title:'Single AI vendor concentration risk',desc:'Critical dependence on one AI vendor without fallback creates operational risk from outages, pricing changes, or service discontinuation.',fw:'OSFI B-13: S.5 | ISO 27001: A.5.30 | NIST AI RMF: GOVERN 6.2'}},
+      {cat:'Ongoing Monitoring',text:'Are third-party AI systems continuously monitored after deployment?',ctx:'Initial vendor assessments become stale — ongoing monitoring is required to detect changes in vendor security posture.',
+        opts:[{t:'Yes — continuous monitoring with annual vendor reassessment',r:0,l:'Low risk'},{t:'Periodic reviews — not continuous',r:2,l:'Medium risk'},{t:'Post-deployment monitoring not in place',r:4,l:'High risk'},{t:'Vendor assessment was one-time only',r:5,l:'Critical risk'}],
+        finding:{title:'No ongoing monitoring of third-party AI systems',desc:'Vendor security posture changes after initial assessment. Without continuous monitoring, deteriorating controls go undetected.',fw:'ISO 27001: A.5.19 | NIST AI RMF: MEASURE 2.6 | OSFI B-13: S.5'}},
+      {cat:'Open Source AI',text:'When open source AI models are used, is there a process to assess and manage their risks?',ctx:'Open source AI models can contain vulnerabilities, biases, or malicious code that bypass vendor security processes.',
+        opts:[{t:'Yes — open source AI models are assessed before use',r:0,l:'Low risk'},{t:'Informal review — not standardised',r:2,l:'Medium risk'},{t:'Open source models used without formal assessment',r:4,l:'High risk'},{t:'Open source AI usage is not tracked',r:5,l:'Critical risk'}],
+        finding:{title:'Open source AI models used without risk assessment',desc:'Unassessed open source AI models can introduce vulnerabilities, biases, or licensing issues into production environments.',fw:'NIST AI RMF: GOVERN 6.1 | OWASP LLM Top 10: LLM05 | ISO 27001: A.5.19'}},
+      {cat:'Exit Strategy',text:'Do you have a documented plan for exiting an AI vendor relationship?',ctx:'AI vendor dependency without an exit plan creates lock-in risk and impedes switching if security standards deteriorate.',
+        opts:[{t:'Yes — documented exit strategy with data portability requirements',r:0,l:'Low risk'},{t:'Informal plan — not documented',r:2,l:'Medium risk'},{t:'No vendor exit strategy',r:4,l:'High risk'},{t:'Exit strategy has not been considered',r:5,l:'Critical risk'}],
+        finding:{title:'No AI vendor exit strategy',desc:'Without an exit plan, organisations become locked into vendor relationships regardless of deteriorating security or service quality.',fw:'ISO 27001: A.5.20 | OSFI B-13: S.5 | NIST AI RMF: GOVERN 6.2'}},
+      {cat:'Incident Response',text:'Is your AI vendor required to notify you of security incidents affecting your data or AI systems?',ctx:'Without contractual incident notification requirements, vendor breaches affecting your AI systems may go unreported.',
+        opts:[{t:'Yes — contractual 24-72 hour notification requirement',r:0,l:'Low risk'},{t:'General notification clause — no specific timeframe',r:2,l:'Medium risk'},{t:'No incident notification requirement in vendor contracts',r:4,l:'High risk'},{t:'Not aware vendors should notify of incidents',r:5,l:'Critical risk'}],
+        finding:{title:'No contractual AI vendor incident notification requirement',desc:'Without mandatory notification clauses, vendor breaches affecting your AI systems may not be reported until after public disclosure.',fw:'PIPEDA | ISO 27001: A.5.26 | OSFI B-13: S.5'}}
+    ]
+  },
+  {
+    id:'ir', title:'AI Incident Response Readiness', color:'#C0392B',
+    desc:'Assess your organisation\'s preparedness to detect, respond to, and recover from AI-specific security incidents.',
+    tag:'NIST AI RMF · ISO 27001',
+    questions:[
+      {cat:'IR Playbook',text:'Does your organisation have an incident response playbook specifically covering AI security incidents?',ctx:'Traditional IR playbooks do not address AI-specific failure modes like model poisoning, prompt injection, or autonomous decision failures.',
+        opts:[{t:'Yes — AI-specific IR playbook with defined escalation and containment',r:0,l:'Low risk'},{t:'General IR playbook adapted but not AI-specific',r:2,l:'Medium risk'},{t:'No AI-specific IR playbook',r:4,l:'High risk'},{t:'No documented IR playbook',r:5,l:'Critical risk'}],
+        finding:{title:'No AI-specific incident response playbook',desc:'AI incidents require specialised response procedures. Applying traditional IR to AI failures leaves critical gaps in containment and recovery.',fw:'NIST AI RMF: RESPOND 1.1 | ISO 27001: A.5.26 | NIST 800-53: IR-8'}},
+      {cat:'Detection Capability',text:'Do you have monitoring in place to detect AI-specific security incidents — prompt injection, data poisoning, model evasion?',ctx:'AI security incidents often manifest differently from traditional cyberattacks and require specialised detection approaches.',
+        opts:[{t:'Yes — AI-specific detection rules and alerts in place',r:0,l:'Low risk'},{t:'General security monitoring — not AI-specific',r:2,l:'Medium risk'},{t:'No AI-specific detection capability',r:4,l:'High risk'},{t:'Not aware AI incidents require specific detection',r:5,l:'Critical risk'}],
+        finding:{title:'No AI-specific incident detection capability',desc:'AI attacks like prompt injection and model evasion often evade traditional security monitoring. Specialised detection is required.',fw:'NIST AI RMF: MEASURE 2.6 | OWASP LLM Top 10 | ISO 27001: A.8.16'}},
+      {cat:'Escalation Path',text:'Is there a defined escalation path when an AI system behaves unexpectedly or makes harmful decisions?',ctx:'Without a defined escalation path, AI anomalies may be treated as technical glitches rather than security incidents.',
+        opts:[{t:'Yes — defined escalation path with named owners',r:0,l:'Low risk'},{t:'Informal escalation — no documented path',r:2,l:'Medium risk'},{t:'No defined escalation for AI anomalies',r:4,l:'High risk'},{t:'AI anomalies are not currently monitored',r:5,l:'Critical risk'}],
+        finding:{title:'No defined escalation path for AI anomalies',desc:'Without escalation procedures, AI anomalies are handled inconsistently, delaying incident recognition and response.',fw:'NIST AI RMF: RESPOND 1.2 | ISO 27001: A.5.25 | NIST 800-53: IR-6'}},
+      {cat:'Rollback Capability',text:'Can you roll back to a previous version of an AI model if the current version is compromised or failing?',ctx:'Model rollback is a critical containment control — without it, a compromised model may remain in production during investigation.',
+        opts:[{t:'Yes — model versioning with tested rollback capability',r:0,l:'Low risk'},{t:'Versioning exists but rollback not formally tested',r:2,l:'Medium risk'},{t:'No model rollback capability',r:4,l:'High risk'},{t:'Model versions are not maintained',r:5,l:'Critical risk'}],
+        finding:{title:'No AI model rollback capability',desc:'Without rollback, a compromised or degraded model must remain in production during investigation — extending exposure and impact.',fw:'NIST AI RMF: RESPOND 2.1 | ISO 27001: A.8.32 | OSFI B-13: S.4'}},
+      {cat:'Tabletop Exercises',text:'Has your organisation conducted a tabletop exercise simulating an AI security incident?',ctx:'AI security incidents have unique dynamics that require practice to respond to effectively under pressure.',
+        opts:[{t:'Yes — AI incident tabletop exercise conducted in the last 12 months',r:0,l:'Low risk'},{t:'General IR exercise — not AI-specific',r:2,l:'Medium risk'},{t:'No AI incident exercises conducted',r:4,l:'High risk'},{t:'IR exercises are not conducted',r:5,l:'Critical risk'}],
+        finding:{title:'No AI-specific incident response exercises',desc:'AI incidents require muscle memory developed through practice. Without AI-specific exercises, response will be slower and less effective.',fw:'NIST AI RMF: GOVERN 4.1 | ISO 27001: A.5.26 | NIST 800-53: IR-3'}},
+      {cat:'Regulatory Notification',text:'Do you know your regulatory notification obligations when an AI system is involved in a security incident?',ctx:'AI incidents triggering data breaches may require notification to OSFI, OPC, or provincial regulators within defined timeframes.',
+        opts:[{t:'Yes — notification obligations documented and owners assigned',r:0,l:'Low risk'},{t:'General breach notification known — AI-specific not assessed',r:2,l:'Medium risk'},{t:'Regulatory notification obligations not clearly defined',r:4,l:'High risk'},{t:'Not aware of notification obligations for AI incidents',r:5,l:'Critical risk'}],
+        finding:{title:'Regulatory notification obligations for AI incidents not defined',desc:'AI incidents involving personal data may trigger mandatory notification to OSFI, OPC, or provincial regulators within 72 hours.',fw:'PIPEDA | OSFI B-13 | ISO 27001: A.5.26 | NIST 800-53: IR-6'}},
+      {cat:'Evidence Preservation',text:'Are evidence preservation procedures in place for AI security incidents — logs, model states, inputs and outputs?',ctx:'AI incident forensics require specialised evidence — model inputs, outputs, and behavioural logs that may not be captured by standard IR procedures.',
+        opts:[{t:'Yes — AI-specific evidence preservation procedures defined',r:0,l:'Low risk'},{t:'General evidence procedures — not AI-specific',r:2,l:'Medium risk'},{t:'No evidence preservation procedures for AI incidents',r:4,l:'High risk'},{t:'Not aware AI incidents require specific evidence types',r:5,l:'Critical risk'}],
+        finding:{title:'No AI-specific evidence preservation procedures',desc:'AI incident forensics require model inputs, outputs, and behavioural logs not captured by standard IR. Without procedures, critical evidence is lost.',fw:'NIST AI RMF: RESPOND 1.1 | ISO 27001: A.5.28 | NIST 800-53: IR-4'}},
+      {cat:'Post-Incident Review',text:'After an AI security incident, is a post-incident review conducted to improve controls?',ctx:'Post-incident reviews for AI incidents should assess model behaviour, detection effectiveness, and control gaps.',
+        opts:[{t:'Yes — structured post-incident review with improvement tracking',r:0,l:'Low risk'},{t:'Informal review — not structured or tracked',r:2,l:'Medium risk'},{t:'No post-incident review process',r:4,l:'High risk'},{t:'Post-incident reviews are not conducted',r:5,l:'Critical risk'}],
+        finding:{title:'No structured post-incident review for AI incidents',desc:'Without post-incident reviews, the same AI vulnerabilities are exploited repeatedly. Continuous improvement requires structured learning.',fw:'NIST AI RMF: RESPOND 2.2 | ISO 27001: A.5.27 | NIST 800-53: IR-4'}},
+      {cat:'Third-Party Coordination',text:'Have you established IR coordination procedures with your AI vendors for joint incident response?',ctx:'AI incidents often span both your environment and the vendor\'s — without coordination, response is fragmented.',
+        opts:[{t:'Yes — joint IR procedures established with key AI vendors',r:0,l:'Low risk'},{t:'Informal coordination — no documented procedures',r:2,l:'Medium risk'},{t:'No IR coordination with AI vendors',r:4,l:'High risk'},{t:'Not considered vendor involvement in AI incidents',r:5,l:'Critical risk'}],
+        finding:{title:'No joint incident response coordination with AI vendors',desc:'AI incidents spanning your environment and vendor systems require coordinated response. Without procedures, response is fragmented and slower.',fw:'NIST AI RMF: RESPOND 1.1 | ISO 27001: A.5.19 | OSFI B-13: S.5'}},
+      {cat:'Communication Plan',text:'Is there a communication plan for notifying affected stakeholders when an AI system fails or is compromised?',ctx:'AI incidents affecting customers, employees, or partners require clear, timely communication to maintain trust.',
+        opts:[{t:'Yes — stakeholder communication plan specific to AI incidents',r:0,l:'Low risk'},{t:'General crisis communications plan — not AI-specific',r:2,l:'Medium risk'},{t:'No communication plan for AI incidents',r:4,l:'High risk'},{t:'Not considered communication for AI failures',r:5,l:'Critical risk'}],
+        finding:{title:'No stakeholder communication plan for AI incidents',desc:'AI failures affecting customers or operations without a communication plan damage trust and may trigger regulatory scrutiny.',fw:'ISO 27001: A.5.26 | NIST AI RMF: RESPOND 1.3 | PIPEDA'}}
+    ]
+  },
+  {
+    id:'reg', title:'Regulatory Compliance Readiness', color:'#0F6B5C',
+    desc:'Assess your organisation\'s readiness to comply with key AI regulations and frameworks — EU AI Act, OSFI B-13, PIPEDA, and ISO 42001.',
+    tag:'EU AI Act · OSFI B-13 · PIPEDA · ISO 42001',
+    questions:[
+      {cat:'AI Act Classification',text:'Have you classified your AI systems under the EU AI Act risk tiers — Unacceptable, High, Limited, or Minimal risk?',ctx:'The EU AI Act imposes obligations based on AI system risk classification. High-risk systems have significant compliance requirements.',
+        opts:[{t:'Yes — all AI systems classified and obligations assessed',r:0,l:'Low risk'},{t:'Classification started — not complete',r:2,l:'Medium risk'},{t:'No classification conducted',r:4,l:'High risk'},{t:'Not aware of EU AI Act classification requirements',r:5,l:'Critical risk'}],
+        finding:{title:'AI systems not classified under EU AI Act',desc:'Without risk classification, organisations cannot identify which AI systems require conformity assessments, human oversight, or transparency obligations.',fw:'EU AI Act: Art. 6, 9 | NIST AI RMF: MAP 1.1'}},
+      {cat:'OSFI B-13',text:'If you are a federally regulated financial institution in Canada, have you assessed alignment with OSFI B-13?',ctx:'OSFI B-13 sets technology and cyber risk management expectations for Canadian FRFIs — AI systems are explicitly in scope.',
+        opts:[{t:'Yes — formal OSFI B-13 AI risk assessment completed',r:0,l:'Low risk'},{t:'Partial assessment — not comprehensive',r:2,l:'Medium risk'},{t:'Not assessed against OSFI B-13',r:4,l:'High risk'},{t:'Not subject to OSFI B-13 / Not aware of it',r:0,l:'Not applicable'}],
+        finding:{title:'OSFI B-13 AI risk alignment not assessed',desc:'OSFI B-13 explicitly requires FRFIs to manage technology and AI risks. Unassessed alignment creates regulatory examination risk.',fw:'OSFI B-13: S.1-S.5 | NIST AI RMF | ISO 27001'}},
+      {cat:'PIPEDA Compliance',text:'Have your AI systems been assessed for compliance with PIPEDA\'s personal information protection requirements?',ctx:'PIPEDA applies to all private sector organisations handling Canadian personal data — AI systems processing PII require specific compliance measures.',
+        opts:[{t:'Yes — formal PIPEDA compliance assessment for AI systems',r:0,l:'Low risk'},{t:'General PIPEDA compliance — AI-specific not assessed',r:2,l:'Medium risk'},{t:'No PIPEDA assessment for AI systems',r:4,l:'High risk'},{t:'Not aware PIPEDA applies to AI systems',r:5,l:'Critical risk'}],
+        finding:{title:'AI systems not assessed for PIPEDA compliance',desc:'AI systems processing Canadian personal data must comply with PIPEDA. Without assessment, specific obligations around consent, transparency, and breach notification may be unmet.',fw:'PIPEDA | ISO 27001: A.5.34 | NIST AI RMF: MAP 1.6'}},
+      {cat:'ISO 42001',text:'Has your organisation adopted or assessed alignment with ISO 42001 — the AI Management System standard?',ctx:'ISO 42001 provides a framework for responsible AI governance — adoption signals governance maturity to regulators and clients.',
+        opts:[{t:'Yes — ISO 42001 adopted or formal alignment assessment completed',r:0,l:'Low risk'},{t:'Familiar with ISO 42001 — adoption planned',r:1,l:'Low-medium risk'},{t:'Not assessed ISO 42001',r:3,l:'Medium risk'},{t:'Not aware of ISO 42001',r:4,l:'High risk'}],
+        finding:{title:'ISO 42001 not adopted or assessed',desc:'ISO 42001 provides the emerging global standard for AI management systems. Early adoption demonstrates governance leadership and regulatory readiness.',fw:'ISO 42001 | NIST AI RMF | EU AI Act'}},
+      {cat:'Human Rights',text:'Have you assessed whether your AI systems could adversely impact human rights or protected groups?',ctx:'AI systems can inadvertently discriminate or violate human rights — regulatory frameworks increasingly require this assessment.',
+        opts:[{t:'Yes — formal human rights impact assessment for AI systems',r:0,l:'Low risk'},{t:'Considered informally — not formally assessed',r:2,l:'Medium risk'},{t:'No human rights assessment conducted',r:4,l:'High risk'},{t:'Not aware AI systems can impact human rights',r:5,l:'Critical risk'}],
+        finding:{title:'No human rights impact assessment for AI systems',desc:'AI systems can perpetuate or amplify discrimination affecting protected groups. Without assessment, organisations face regulatory and reputational risk.',fw:'EU AI Act: Art. 9 | NIST AI RMF: MAP 5.2 | Canadian Human Rights Act'}},
+      {cat:'Documentation',text:'Do you maintain the technical documentation required by applicable AI regulations?',ctx:'EU AI Act High-risk AI systems require extensive technical documentation — many organisations underestimate this compliance burden.',
+        opts:[{t:'Yes — all required technical documentation maintained and current',r:0,l:'Low risk'},{t:'Partial documentation — some gaps',r:2,l:'Medium risk'},{t:'Documentation requirements not assessed',r:4,l:'High risk'},{t:'Not aware of AI documentation obligations',r:5,l:'Critical risk'}],
+        finding:{title:'AI regulatory documentation requirements not met',desc:'EU AI Act and OSFI B-13 require specific technical documentation for AI systems. Gaps create compliance exposure during regulatory examination.',fw:'EU AI Act: Art. 11 | OSFI B-13: S.1 | ISO 42001'}},
+      {cat:'Conformity Assessment',text:'For high-risk AI systems under the EU AI Act, have conformity assessments been conducted?',ctx:'High-risk AI systems must undergo conformity assessments before deployment — many organisations are unaware this applies to them.',
+        opts:[{t:'Yes — conformity assessments completed for all applicable systems',r:0,l:'Low risk'},{t:'Assessment in progress — not complete',r:2,l:'Medium risk'},{t:'No conformity assessments conducted',r:4,l:'High risk'},{t:'Not aware conformity assessments are required',r:5,l:'Critical risk'}],
+        finding:{title:'Conformity assessments not conducted for high-risk AI',desc:'High-risk AI systems deployed without conformity assessments are non-compliant under EU AI Act — creating significant regulatory exposure.',fw:'EU AI Act: Art. 43 | ISO 42001'}},
+      {cat:'Regulatory Monitoring',text:'Is someone in your organisation responsible for monitoring AI regulatory developments?',ctx:'AI regulation is evolving rapidly — organisations without regulatory monitoring may face surprise compliance obligations.',
+        opts:[{t:'Yes — dedicated role or team monitoring AI regulatory developments',r:0,l:'Low risk'},{t:'General legal/compliance team monitors — not AI-specific',r:2,l:'Medium risk'},{t:'No one specifically monitors AI regulation',r:4,l:'High risk'},{t:'Not aware AI regulation is evolving rapidly',r:5,l:'Critical risk'}],
+        finding:{title:'No one monitoring AI regulatory developments',desc:'AI regulation is evolving rapidly across jurisdictions. Without dedicated monitoring, organisations face reactive compliance scrambles.',fw:'NIST AI RMF: GOVERN 1.1 | EU AI Act | OSFI B-13'}},
+      {cat:'Algorithmic Transparency',text:'Can you provide a plain-language explanation of how your AI systems make decisions affecting individuals?',ctx:'Transparency obligations are increasing across AI regulations — affected individuals have growing rights to explanation.',
+        opts:[{t:'Yes — plain-language explanations available for all customer-facing AI',r:0,l:'Low risk'},{t:'Available for some systems — not all',r:2,l:'Medium risk'},{t:'No plain-language explanations available',r:4,l:'High risk'},{t:'Not aware transparency explanations are required',r:5,l:'Critical risk'}],
+        finding:{title:'AI systems cannot provide plain-language decision explanations',desc:'Transparency obligations under EU AI Act, PIPEDA, and OSFI B-13 increasingly require clear explanations of AI decisions affecting individuals.',fw:'EU AI Act: Art. 13 | PIPEDA | NIST AI RMF: GOVERN 1.7'}},
+      {cat:'Compliance Roadmap',text:'Does your organisation have a documented AI regulatory compliance roadmap?',ctx:'Without a compliance roadmap, AI regulatory obligations are addressed reactively rather than strategically.',
+        opts:[{t:'Yes — documented roadmap with milestones and owners',r:0,l:'Low risk'},{t:'Informal plan — not documented',r:2,l:'Medium risk'},{t:'No AI regulatory compliance roadmap',r:4,l:'High risk'},{t:'AI regulatory compliance not formally managed',r:5,l:'Critical risk'}],
+        finding:{title:'No AI regulatory compliance roadmap',desc:'Without a structured roadmap, AI regulatory compliance is reactive and fragmented — increasing the risk of missed obligations.',fw:'NIST AI RMF: GOVERN 1.4 | EU AI Act | OSFI B-13: S.1'}}
+    ]
+  }
+];
+
+// ─── STATE ───
+let selectedModuleIds = [];
+let moduleQueue = [];
+let currentModuleIdx = 0;
+let currentQIdx = 0;
+let moduleAnswers = {}; // {moduleId: [{optIdx, riskScore}]}
+
+// ─── INIT ───
+function renderModuleCards() {
+  const grid = document.getElementById('modulesGrid');
+  MODULES.forEach((m,i) => {
+    const card = document.createElement('div');
+    card.className = 'module-card';
+    card.id = 'mc_' + m.id;
+    card.onclick = () => toggleModule(m.id);
+    card.innerHTML = `
+      <div class="mc-top">
+        <div class="mc-num">0${i+1}</div>
+        <div class="mc-check" id="mcc_${m.id}">✓</div>
+      </div>
+      <div class="mc-title">${m.title}</div>
+      <div class="mc-desc">${m.desc}</div>
+      <div class="mc-tag">${m.tag}</div>
+    `;
+    grid.appendChild(card);
+  });
+  updateSelCount();
+}
+
+function toggleModule(id) {
+  const idx = selectedModuleIds.indexOf(id);
+  if (idx === -1) selectedModuleIds.push(id);
+  else selectedModuleIds.splice(idx, 1);
+  document.getElementById('mc_'+id).classList.toggle('selected', selectedModuleIds.includes(id));
+  updateSelCount();
+}
+
+function selectAll() {
+  selectedModuleIds = MODULES.map(m => m.id);
+  MODULES.forEach(m => document.getElementById('mc_'+m.id).classList.add('selected'));
+  updateSelCount();
+}
+
+function clearAll() {
+  selectedModuleIds = [];
+  MODULES.forEach(m => document.getElementById('mc_'+m.id).classList.remove('selected'));
+  updateSelCount();
+}
+
+function updateSelCount() {
+  const n = selectedModuleIds.length;
+  document.getElementById('selCount').textContent = n > 0 ? n + ' domain' + (n>1?'s':'')+' selected' : '';
+  document.getElementById('btnStart').disabled = n === 0;
+  document.getElementById('startHint').textContent = n === 0 ? 'Select at least one domain to begin' : 'Ready — click to start';
+}
+
+// ─── START ───
+function startAssessment() {
+  moduleQueue = selectedModuleIds.map(id => MODULES.find(m => m.id === id));
+  moduleAnswers = {};
+  moduleQueue.forEach(m => { moduleAnswers[m.id] = new Array(m.questions.length).fill(null); });
+  currentModuleIdx = 0;
+  currentQIdx = 0;
+  document.getElementById('screenModules').style.display = 'none';
+  document.getElementById('screenAssessment').style.display = 'block';
+  renderQuestion();
+}
+
+// ─── RENDER QUESTION ───
+function renderQuestion() {
+  const mod = moduleQueue[currentModuleIdx];
+  const q = mod.questions[currentQIdx];
+  const totalQ = moduleQueue.reduce((s,m) => s + m.questions.length, 0);
+  const doneQ = moduleQueue.slice(0, currentModuleIdx).reduce((s,m) => s + m.questions.length, 0) + currentQIdx;
+
+  document.getElementById('assessModuleBadge').textContent = mod.title;
+  document.getElementById('assessBarFill').style.width = (doneQ/totalQ*100) + '%';
+  document.getElementById('assessProgressLabel').textContent = `${doneQ+1} / ${totalQ}`;
+
+  const wrap = document.getElementById('qCardWrap');
+  const ans = moduleAnswers[mod.id][currentQIdx];
+  wrap.innerHTML = `
+    <div class="q-card">
+      <div class="q-cat">${q.cat}</div>
+      <div class="q-num">${mod.title.toUpperCase()} — QUESTION ${currentQIdx+1} OF ${mod.questions.length}</div>
+      <div class="q-text">${q.text}</div>
+      <div class="q-ctx">${q.ctx}</div>
+      <div class="options">
+        ${q.opts.map((opt,j) => `
+          <div class="opt${ans && ans.optIdx===j?' sel':''}" id="opt_${j}" onclick="selectOpt(${j},${opt.r})">
+            <span class="opt-key">${['A','B','C','D'][j]}</span>
+            <div class="opt-main">
+              <div class="opt-text">${opt.t}</div>
+              <div class="opt-risk">${opt.l}</div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+
+  const hasAns = moduleAnswers[mod.id][currentQIdx] !== null;
+  document.getElementById('btnNext').disabled = !hasAns;
+
+  const isFirst = currentModuleIdx === 0 && currentQIdx === 0;
+  document.getElementById('btnBack').style.visibility = isFirst ? 'hidden' : 'visible';
+
+  const isLast = currentModuleIdx === moduleQueue.length-1 && currentQIdx === moduleQueue[currentModuleIdx].questions.length-1;
+  document.getElementById('btnNext').textContent = isLast ? 'See results' : 'Next';
+}
+
+function selectOpt(optIdx, riskScore) {
+  const mod = moduleQueue[currentModuleIdx];
+  moduleAnswers[mod.id][currentQIdx] = {optIdx, riskScore};
+  document.querySelectorAll('.opt').forEach((el,i) => el.classList.toggle('sel', i===optIdx));
+  document.getElementById('btnNext').disabled = false;
+}
+
+function goNext() {
+  const mod = moduleQueue[currentModuleIdx];
+  if (currentQIdx < mod.questions.length - 1) {
+    currentQIdx++;
+  } else if (currentModuleIdx < moduleQueue.length - 1) {
+    currentModuleIdx++;
+    currentQIdx = 0;
+  } else {
+    showResults();
+    return;
+  }
+  renderQuestion();
+}
+
+function goBack() {
+  if (currentQIdx > 0) {
+    currentQIdx--;
+  } else if (currentModuleIdx > 0) {
+    currentModuleIdx--;
+    currentQIdx = moduleQueue[currentModuleIdx].questions.length - 1;
+  }
+  renderQuestion();
+}
+
+// ─── RESULTS ───
+function showResults() {
+  document.getElementById('screenAssessment').style.display = 'none';
+  document.getElementById('screenResults').style.display = 'block';
+  window.scrollTo({top:0,behavior:'smooth'});
+
+  // Module scores
+  const modScores = moduleQueue.map(mod => {
+    const answers = moduleAnswers[mod.id];
+    const total = answers.reduce((s,a) => s + (a ? a.riskScore : 0), 0);
+    const max = mod.questions.length * 5;
+    const pct = Math.round(total/max*100);
+    return {mod, pct, total, max};
+  });
+
+  // Overall
+  const totalScore = modScores.reduce((s,ms) => s + ms.total, 0);
+  const totalMax = modScores.reduce((s,ms) => s + ms.max, 0);
+  const overallPct = Math.round(totalScore/totalMax*100);
+
+  let level, desc, cls;
+  if (overallPct >= 65) { level='Foundational'; cls='ml-foundational'; desc='Significant AI governance gaps exist across multiple domains. Immediate action is required on critical findings. Prioritise incident response, explainability controls, and regulatory assessment as first steps.'; }
+  else if (overallPct >= 40) { level='Developing'; cls='ml-developing'; desc='Your AI governance programme is developing but has material gaps. Key areas require structured remediation within 30-90 days. Review high-severity findings and establish a formal governance roadmap.'; }
+  else if (overallPct >= 20) { level='Managed'; cls='ml-managed'; desc='A reasonable AI governance foundation is in place with specific gaps to address. Focus on medium and high findings below and establish continuous monitoring to maintain maturity.'; }
+  else { level='Advanced'; cls='ml-advanced'; desc='Strong AI governance foundations across assessed domains. Continue to monitor regulatory developments, conduct annual reassessments, and ensure controls evolve with your AI deployments.'; }
+
+  document.getElementById('maturityScore').textContent = overallPct + '%';
+  document.getElementById('maturityLabel').innerHTML = `<span class="${cls}">${level} Maturity</span>`;
+  document.getElementById('maturityDesc').textContent = desc;
+
+  // Module result cards
+  const modResultsEl = document.getElementById('moduleResults');
+  modScores.forEach(({mod, pct}) => {
+    let sev, barCls, lvCls, lvText;
+    if (pct >= 65) { sev='sev-c'; barCls='bar-c'; lvCls='lv-c'; lvText='Critical'; }
+    else if (pct >= 40) { sev='sev-h'; barCls='bar-h'; lvCls='lv-h'; lvText='High'; }
+    else if (pct >= 20) { sev='sev-m'; barCls='bar-m'; lvCls='lv-m'; lvText='Managed'; }
+    else { sev='sev-l'; barCls='bar-l'; lvCls='lv-l'; lvText='Advanced'; }
+
+    modResultsEl.innerHTML += `
+      <div class="mod-result">
+        <div class="mr-title">${mod.title}</div>
+        <div class="mr-score-row">
+          <div class="mr-score ${sev}">${pct}%</div>
+          <div class="mr-bar"><div class="mr-bar-fill ${barCls}" style="width:${pct}%"></div></div>
+          <div class="mr-level ${lvCls}">${lvText}</div>
+        </div>
+      </div>
+    `;
+  });
+
+  // All findings sorted by risk
+  const allFindings = [];
+  moduleQueue.forEach(mod => {
+    const answers = moduleAnswers[mod.id];
+    mod.questions.forEach((q,i) => {
+      const a = answers[i];
+      if (a && a.riskScore > 0) {
+        allFindings.push({...q.finding, riskScore: a.riskScore, moduleName: mod.title});
+      }
+    });
+  });
+  allFindings.sort((a,b) => b.riskScore - a.riskScore);
+
+  const findingsEl = document.getElementById('allFindings');
+  if (allFindings.length === 0) {
+    findingsEl.innerHTML = '<div class="finding"><div class="f-body"><div class="f-title">No significant risks identified</div><div class="f-desc">Your responses indicate strong AI governance controls across all assessed domains. Review the full methodology on GitHub for additional risk areas.</div></div></div>';
+  } else {
+    allFindings.forEach(f => {
+      let dotCls, bdgCls, bdgText;
+      if (f.riskScore >= 5) { dotCls='sev-c'; bdgCls='fb-c'; bdgText='Critical'; }
+      else if (f.riskScore >= 4) { dotCls='sev-h'; bdgCls='fb-h'; bdgText='High'; }
+      else if (f.riskScore >= 2) { dotCls='sev-m'; bdgCls='fb-m'; bdgText='Medium'; }
+      else { dotCls='sev-l'; bdgCls='fb-l'; bdgText='Low'; }
+
+      findingsEl.innerHTML += `
+        <div class="finding">
+          <div class="f-dot ${dotCls}"></div>
+          <div class="f-body">
+            <div class="f-title">${f.title}</div>
+            <div class="f-desc">${f.desc}</div>
+            <div class="f-fw">${f.fw}</div>
+            <div class="f-module">${f.moduleName}</div>
+          </div>
+          <div class="f-badge ${bdgCls}">${bdgText}</div>
+        </div>
+      `;
+    });
+  }
+}
+
+function restart() {
+  selectedModuleIds = [];
+  moduleQueue = [];
+  moduleAnswers = {};
+  currentModuleIdx = 0;
+  currentQIdx = 0;
+  document.getElementById('screenResults').style.display = 'none';
+  document.getElementById('moduleResults').innerHTML = '';
+  document.getElementById('allFindings').innerHTML = '';
+  MODULES.forEach(m => document.getElementById('mc_'+m.id).classList.remove('selected'));
+  updateSelCount();
+  document.getElementById('screenModules').style.display = 'block';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+renderModuleCards();
+</script>
+</body>
+</html>
